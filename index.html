@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>LAHVØID</title>
+<style>
+  html,body{margin:0;height:100%;background:#0a0a0a;overflow:hidden;-webkit-tap-highlight-color:transparent}
+  .layer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity 1.2s ease}
+  .card{position:relative;display:block;aspect-ratio:577/1029;width:min(100vw,calc(100vh*577/1029));width:min(100vw,calc(100dvh*577/1029))}
+  #front .card{aspect-ratio:588/829;width:min(100vw,calc(100vh*588/829));width:min(100vw,calc(100dvh*588/829))}
+  .card img.bg{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none}
+  .dg{position:absolute;display:block;pointer-events:none;visibility:hidden}
+  .hot{position:absolute;display:block;z-index:2}
+  #back{opacity:0;pointer-events:none}
+  #back.show{opacity:1;pointer-events:auto}
+  #front.hide{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="layer" id="front"><div class="card"><img class="bg" src="assets/front.jpg" alt="LAHVØID – the next signal is coming"></div></div>
+
+<div class="layer" id="back">
+  <div class="card">
+    <img class="bg" id="backimg" src="assets/back.jpg" alt="Your LAHVØID secret code card">
+    <img class="dg" id="dg0" alt="" style="left:54.237%;top:28.863%;width:6.93%;height:6.22%">
+    <img class="dg" id="dg1" alt="" style="left:61.168%;top:28.863%;width:6.93%;height:6.22%">
+    <img class="dg" id="dg2" alt="" style="left:68.098%;top:28.863%;width:6.93%;height:6.22%">
+    <img class="dg" id="dg3" alt="" style="left:75.028%;top:28.863%;width:6.93%;height:6.22%">
+    <a class="hot" href="https://www.instagram.com/lahvoid?utm_source=ig_web_button_share_sheet&amp;bqrl=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener" aria-label="@lahvoid on Instagram" style="left:29.636%;top:57.823%;width:20.273%;height:2.527%"></a>
+    <a class="hot" href="https://www.instagram.com/lahvoid?utm_source=ig_web_button_share_sheet&amp;bqrl=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener" aria-label="@lahvoid on Instagram" style="left:48.523%;top:66.278%;width:20.273%;height:2.527%"></a>
+    <a class="hot" href="https://www.instagram.com/lahvoid?utm_source=ig_web_button_share_sheet&amp;bqrl=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener" aria-label="@lahvoid on Instagram" style="left:29.636%;top:83.188%;width:20.273%;height:2.527%"></a>
+    <a class="hot" href="https://chat.whatsapp.com/JHFcjT9B8Ci2QKBl6rd9Q4" target="_blank" rel="noopener" aria-label="WhatsApp group" style="left:6.759%;top:95.53%;width:57.387%;height:2.721%"></a>
+    <a class="hot" href="https://www.lahvoid.nl/" target="_blank" rel="noopener" aria-label="lahvoid.nl" style="left:71.187%;top:95.53%;width:26.04%;height:2.721%"></a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DELAY = 5000;                  // ms the first card stays on screen
+  var KEY = 'lahvoid_code', DB = 'lahvoid', STORE = 'kv';
+  var started = Date.now();
+
+  function ok(c) { return /^\d{4}$/.test(c || ''); }
+  function fromLS() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function fromCookie() { var m = document.cookie.match(/(?:^|; )lahvoid_code=(\d{4})/); return m ? m[1] : null; }
+
+  // IndexedDB copy (a third place to keep the code)
+  function idb(op, val) {
+    return new Promise(function (res) {
+      var t = setTimeout(function () { res(null); }, 1500);
+      function done(v) { clearTimeout(t); res(v); }
+      try {
+        var r = indexedDB.open(DB, 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore(STORE); };
+        r.onerror = function () { done(null); };
+        r.onsuccess = function () {
+          try {
+            var tx = r.result.transaction(STORE, op === 'get' ? 'readonly' : 'readwrite');
+            var st = tx.objectStore(STORE);
+            var q = op === 'get' ? st.get(KEY) : st.put(val, KEY);
+            q.onsuccess = function () { done(q.result || null); };
+            q.onerror = function () { done(null); };
+          } catch (e) { done(null); }
+        };
+      } catch (e) { done(null); }
+    });
+  }
+
+  function save(c) {
+    try { localStorage.setItem(KEY, c); } catch (e) {}
+    document.cookie = 'lahvoid_code=' + c + '; max-age=63072000; path=/; SameSite=Lax';
+    idb('put', c);
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  }
+
+  function generate() {
+    var r = new Uint32Array(4); (window.crypto || window.msCrypto).getRandomValues(r);
+    return Array.prototype.map.call(r, function (n) { return n % 10; }).join('');
+  }
+
+  function showCode(code) {
+    for (var i = 0; i < 4; i++) {
+      var el = document.getElementById('dg' + i);
+      el.src = 'assets/d' + code[i] + '.png'; el.style.visibility = 'visible';
+    }
+  }
+
+  function reveal() {
+    var wait = Math.max(0, DELAY - (Date.now() - started));
+    setTimeout(function () {
+      document.getElementById('front').classList.add('hide');
+      document.getElementById('back').classList.add('show');
+    }, wait);
+  }
+
+  var img = document.getElementById('backimg');
+  var imgReady = img.complete ? Promise.resolve() : new Promise(function (r) { img.addEventListener('load', r); });
+
+  var code = fromLS(); if (!ok(code)) code = fromCookie();
+  var lookup = ok(code) ? Promise.resolve(code) : idb('get');
+
+  lookup.then(function (c) {
+    if (!ok(c)) c = generate();
+    save(c); showCode(c);
+    return imgReady;
+  }).then(reveal);
+})();
+</script>
+</body>
+</html>

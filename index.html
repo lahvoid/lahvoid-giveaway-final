@@ -19,11 +19,11 @@
 </style>
 </head>
 <body>
-<div class="layer" id="front"><div class="card"><img class="bg" src="assets/front.jpg" alt="LAHVØID – the next signal is coming"></div></div>
+<div class="layer" id="front"><div class="card"><img class="bg" src="front.jpg" alt="LAHVØID – the next signal is coming"></div></div>
 
 <div class="layer" id="back">
   <div class="card">
-    <img class="bg" id="backimg" src="assets/back.jpg" alt="Your LAHVØID secret code card">
+    <img class="bg" id="backimg" src="back.jpg" alt="Your LAHVØID secret code card">
     <img class="dg" id="dg0" alt="" style="left:54.237%;top:28.863%;width:6.93%;height:6.22%">
     <img class="dg" id="dg1" alt="" style="left:61.168%;top:28.863%;width:6.93%;height:6.22%">
     <img class="dg" id="dg2" alt="" style="left:68.098%;top:28.863%;width:6.93%;height:6.22%">
@@ -83,7 +83,7 @@
   function showCode(code) {
     for (var i = 0; i < 4; i++) {
       var el = document.getElementById('dg' + i);
-      el.src = 'assets/d' + code[i] + '.png'; el.style.visibility = 'visible';
+      el.src = 'd' + code[i] + '.png'; el.style.visibility = 'visible';
     }
   }
 
